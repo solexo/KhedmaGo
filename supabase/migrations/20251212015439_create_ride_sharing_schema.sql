@@ -50,10 +50,19 @@ CREATE TABLE IF NOT EXISTS professions (
 
 ALTER TABLE professions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can read professions"
-  ON professions FOR SELECT
-  TO authenticated
-  USING (true);
+-- Create policy if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'professions' AND policyname = 'Anyone can read professions'
+  ) THEN
+    CREATE POLICY "Anyone can read professions"
+      ON professions FOR SELECT
+      TO authenticated
+      USING (true);
+  END IF;
+END $$;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
@@ -67,21 +76,40 @@ CREATE TABLE IF NOT EXISTS users (
 
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can read all users"
-  ON users FOR SELECT
-  TO authenticated
-  USING (true);
+-- Create policies if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'users' AND policyname = 'Users can read all users'
+  ) THEN
+    CREATE POLICY "Users can read all users"
+      ON users FOR SELECT
+      TO authenticated
+      USING (true);
+  END IF;
 
-CREATE POLICY "Users can insert their own profile"
-  ON users FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'users' AND policyname = 'Users can insert their own profile'
+  ) THEN
+    CREATE POLICY "Users can insert their own profile"
+      ON users FOR INSERT
+      TO authenticated
+      WITH CHECK (auth.uid() = id);
+  END IF;
 
-CREATE POLICY "Users can update their own profile"
-  ON users FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = id)
-  WITH CHECK (auth.uid() = id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'users' AND policyname = 'Users can update their own profile'
+  ) THEN
+    CREATE POLICY "Users can update their own profile"
+      ON users FOR UPDATE
+      TO authenticated
+      USING (auth.uid() = id)
+      WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
 
 -- Professionals table
 CREATE TABLE IF NOT EXISTS professionals (
@@ -102,21 +130,40 @@ CREATE TABLE IF NOT EXISTS professionals (
 
 ALTER TABLE professionals ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can read available professionals"
-  ON professionals FOR SELECT
-  TO authenticated
-  USING (is_available = true);
+-- Create policies if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'professionals' AND policyname = 'Anyone can read available professionals'
+  ) THEN
+    CREATE POLICY "Anyone can read available professionals"
+      ON professionals FOR SELECT
+      TO authenticated
+      USING (is_available = true);
+  END IF;
 
-CREATE POLICY "Professionals can insert their own profile"
-  ON professionals FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'professionals' AND policyname = 'Professionals can insert their own profile'
+  ) THEN
+    CREATE POLICY "Professionals can insert their own profile"
+      ON professionals FOR INSERT
+      TO authenticated
+      WITH CHECK (auth.uid() = id);
+  END IF;
 
-CREATE POLICY "Professionals can update their own profile"
-  ON professionals FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = id)
-  WITH CHECK (auth.uid() = id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'professionals' AND policyname = 'Professionals can update their own profile'
+  ) THEN
+    CREATE POLICY "Professionals can update their own profile"
+      ON professionals FOR UPDATE
+      TO authenticated
+      USING (auth.uid() = id)
+      WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
 
 -- Insert sample professions
 INSERT INTO professions (name_fr, name_ar, icon) VALUES
@@ -158,16 +205,29 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('professional-photos', 'professional-photos', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Create storage policy for professional photos
-CREATE POLICY "Professionals can upload their own photos"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (bucket_id = 'professional-photos' AND auth.uid()::text = (storage.foldername(name))[1]);
+-- Create storage policies if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Professionals can upload their own photos'
+  ) THEN
+    CREATE POLICY "Professionals can upload their own photos"
+    ON storage.objects FOR INSERT
+    TO authenticated
+    WITH CHECK (bucket_id = 'professional-photos' AND auth.uid()::text = (storage.foldername(name))[1]);
+  END IF;
 
-CREATE POLICY "Anyone can view professional photos"
-ON storage.objects FOR SELECT
-TO public
-USING (bucket_id = 'professional-photos');
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Anyone can view professional photos'
+  ) THEN
+    CREATE POLICY "Anyone can view professional photos"
+    ON storage.objects FOR SELECT
+    TO public
+    USING (bucket_id = 'professional-photos');
+  END IF;
+END $$;
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_professionals_available ON professionals(is_available) WHERE is_available = true;
