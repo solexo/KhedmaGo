@@ -13,6 +13,7 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     profession_id: '',
+    custom_profession: '',
     name: '',
     phone: '',
     whatsapp: '',
@@ -85,7 +86,30 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
 
     setLoading(true);
     try {
+      let finalProfessionId = formData.profession_id;
       let photoUrl = '';
+
+      // Handle custom profession
+      if (formData.profession_id === professions.find(p => p.name_fr === 'Autre')?.id) {
+        if (!formData.custom_profession.trim()) {
+          alert('Veuillez spécifier votre profession');
+          return;
+        }
+
+        // Create new profession
+        const { data: newProfession, error: professionError } = await supabase
+          .from('professions')
+          .insert({
+            name_fr: formData.custom_profession,
+            name_ar: formData.custom_profession, // For now, same as French
+            icon: '💼'
+          })
+          .select()
+          .single();
+
+        if (professionError) throw professionError;
+        finalProfessionId = newProfession.id;
+      }
 
       // Upload photo if provided
       if (photoFile) {
@@ -109,7 +133,7 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
         .from('professionals')
         .insert({
           id: user.id,
-          profession_id: formData.profession_id,
+          profession_id: finalProfessionId,
           name: formData.name,
           phone: formData.phone,
           photo_url: photoUrl,
@@ -151,7 +175,7 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
             </label>
             <select
               value={formData.profession_id}
-              onChange={(e) => setFormData(prev => ({ ...prev, profession_id: e.target.value }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, profession_id: e.target.value, custom_profession: '' }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               required
             >
@@ -163,6 +187,23 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
               ))}
             </select>
           </div>
+
+          {/* Custom Profession Input (when "Autre" is selected) */}
+          {formData.profession_id === professions.find(p => p.name_fr === 'Autre')?.id && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Spécifiez votre profession *
+              </label>
+              <input
+                type="text"
+                value={formData.custom_profession}
+                onChange={(e) => setFormData(prev => ({ ...prev, custom_profession: e.target.value }))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                placeholder="Ex: Consultant IT, Designer..."
+                required
+              />
+            </div>
+          )}
 
           {/* Name */}
           <div>

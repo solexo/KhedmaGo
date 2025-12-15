@@ -118,7 +118,7 @@ CREATE POLICY "Professionals can update their own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
--- Insert some sample professions
+-- Insert sample professions
 INSERT INTO professions (name_fr, name_ar, icon) VALUES
   ('Plombier', 'سباك', '🔧'),
   ('Électricien', 'كهربائي', '⚡'),
@@ -129,7 +129,28 @@ INSERT INTO professions (name_fr, name_ar, icon) VALUES
   ('Cuisinier', 'طباخ', '👨‍🍳'),
   ('Réparateur TV', 'مصلح تلفزيون', '📺'),
   ('Coiffeur', 'حلاق', '✂️'),
-  ('Nettoyeur', 'منظف', '🧹')
+  ('Nettoyeur', 'منظف', '🧹'),
+  ('Maçon', 'بناء', '🏗️'),
+  ('Carreleur', 'مبلط', '🟦'),
+  ('Serrurier', 'مقفل', '🔐'),
+  ('Vitrier', 'زجاجي', '🪟'),
+  ('Chauffagiste', 'سخانات', '🔥'),
+  ('Climatisation', 'تكييف', '❄️'),
+  ('Électroménager', 'أجهزة كهربائية', '🏠'),
+  ('Informatique', 'حاسوب', '💻'),
+  ('Téléphonie', 'هاتف', '📱'),
+  ('Photographe', 'مصور', '📸'),
+  ('Graphiste', 'مصمم جرافيك', '🎨'),
+  ('Traducteur', 'مترجم', '📝'),
+  ('Comptable', 'محاسب', '🧮'),
+  ('Avocat', 'محامي', '⚖️'),
+  ('Médecin', 'طبيب', '👨‍⚕️'),
+  ('Dentiste', 'طبيب أسنان', '🦷'),
+  ('Pharmacien', 'صيدلي', '💊'),
+  ('Vétérinaire', 'طبيب بيطري', '🐕'),
+  ('Enseignant', 'معلم', '👨‍🏫'),
+  ('Coach sportif', 'مدرب رياضي', '🏃‍♂️'),
+  ('Autre', 'أخرى', '❓')
 ON CONFLICT DO NOTHING;
 
 -- Create storage bucket for professional photos
