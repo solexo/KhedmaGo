@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase, Profile } from '../lib/supabase';
+import { supabase, User as UserProfile } from '../lib/supabase';
 
 type AuthContextType = {
   user: User | null;
-  profile: Profile | null;
+  profile: UserProfile | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, phone: string, userType: 'rider' | 'driver') => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, phone: string, userType: 'client' | 'professional') => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadProfile(userId: string) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signUp(email: string, password: string, fullName: string, phone: string, userType: 'rider' | 'driver') {
+  async function signUp(email: string, password: string, fullName: string, phone: string, userType: 'client' | 'professional') {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (data.user) {
       const { error: profileError } = await supabase
-        .from('profiles')
+        .from('users')
         .insert({
           id: data.user.id,
           full_name: fullName,

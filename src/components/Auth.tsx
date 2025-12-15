@@ -8,7 +8,7 @@ export function Auth() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [userType, setUserType] = useState<'rider' | 'driver'>('rider');
+  const [userType, setUserType] = useState<'client' | 'professional'>('client');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -88,32 +88,32 @@ export function Auth() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Je veux
+                  Je suis
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setUserType('rider')}
+                    onClick={() => setUserType('client')}
                     className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
-                      userType === 'rider'
+                      userType === 'client'
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
                         : 'border-gray-300 text-gray-700 hover:border-gray-400'
                     }`}
                   >
                     <User className="w-5 h-5" />
-                    <span className="font-medium">Voyager</span>
+                    <span className="font-medium">Client</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setUserType('driver')}
+                    onClick={() => setUserType('professional')}
                     className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
-                      userType === 'driver'
+                      userType === 'professional'
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
                         : 'border-gray-300 text-gray-700 hover:border-gray-400'
                     }`}
                   >
                     <Car className="w-5 h-5" />
-                    <span className="font-medium">Conduire</span>
+                    <span className="font-medium">Professionnel</span>
                   </button>
                 </div>
               </div>

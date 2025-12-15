@@ -12,56 +12,36 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export type Profile = {
+export type User = {
   id: string;
+  user_type: 'client' | 'professional';
   full_name: string;
   phone: string;
-  user_type: 'rider' | 'driver';
-  avatar_url?: string;
   created_at: string;
   updated_at: string;
 };
 
-export type Driver = {
+export type Profession = {
   id: string;
-  vehicle_type: 'economy' | 'comfort' | 'premium';
-  vehicle_model: string;
-  vehicle_plate: string;
-  license_number: string;
-  rating: number;
-  total_rides: number;
-  is_available: boolean;
+  name_fr: string;
+  name_ar: string;
+  icon: string;
   created_at: string;
 };
 
-export type DriverLocation = {
+export type Professional = {
   id: string;
-  driver_id: string;
+  profession_id: string;
+  name: string;
+  photo_url?: string;
+  description_fr?: string;
+  description_ar?: string;
+  city: string;
   latitude: number;
   longitude: number;
-  heading?: number;
+  phone: string;
+  is_available: boolean;
+  created_at: string;
   updated_at: string;
-};
-
-export type Ride = {
-  id: string;
-  rider_id: string;
-  driver_id?: string;
-  pickup_lat: number;
-  pickup_lng: number;
-  pickup_address: string;
-  dropoff_lat: number;
-  dropoff_lng: number;
-  dropoff_address: string;
-  status: 'requested' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
-  vehicle_type: 'economy' | 'comfort' | 'premium';
-  estimated_price: number;
-  final_price?: number;
-  estimated_duration: number;
-  requested_at: string;
-  accepted_at?: string;
-  started_at?: string;
-  completed_at?: string;
-  rating?: number;
-  feedback?: string;
+  profession?: Profession;
 };

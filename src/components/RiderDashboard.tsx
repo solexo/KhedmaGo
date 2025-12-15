@@ -29,7 +29,7 @@ export function RiderDashboard() {
     loadAvailableDrivers();
     loadCurrentRide();
 
-    const subscription = supabase
+    const ridesSubscription = supabase
       .channel('driver_rides')
       .on(
         'postgres_changes',
@@ -59,8 +59,35 @@ export function RiderDashboard() {
       )
       .subscribe();
 
+    const driversSubscription = supabase
+      .channel('available_drivers')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'driver_locations',
+        },
+        () => {
+          loadAvailableDrivers();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'drivers',
+        },
+        () => {
+          loadAvailableDrivers();
+        }
+      )
+      .subscribe();
+
     return () => {
-      subscription.unsubscribe();
+      ridesSubscription.unsubscribe();
+      driversSubscription.unsubscribe();
     };
   }, [profile?.id]);
 
@@ -125,14 +152,28 @@ export function RiderDashboard() {
     }
   }
 
-  function handleMapClick(lat: number, lng: number) {
+  async function reverseGeocode(lat: number, lng: number): Promise<string> {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+      );
+      const data = await response.json();
+      return data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
+  }
+
+  async function handleMapClick(lat: number, lng: number) {
+    const address = await reverseGeocode(lat, lng);
     if (isSelectingPickup) {
       setPickupLocation({ lat, lng });
-      setPickupAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+      setPickupAddress(address);
       setIsSelectingPickup(false);
     } else {
       setDropoffLocation({ lat, lng });
-      setDropoffAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+      setDropoffAddress(address);
     }
   }
 
@@ -225,8 +266,8 @@ export function RiderDashboard() {
 
   if (currentRide) {
     return (
-      <div className="h-screen flex flex-col">
-        <div className="h-2/3">
+      <div className="h-full flex flex-col">
+        <div className="h-64 md:h-96 relative">
           <Map
             drivers={driverMarkers}
             pickup={[currentRide.pickup_lat, currentRide.pickup_lng]}
@@ -235,7 +276,7 @@ export function RiderDashboard() {
           />
         </div>
 
-        <div className="flex-1 bg-white p-6 overflow-auto">
+        <div className="flex-1 bg-white p-4 md:p-6 overflow-y-auto">
           <div className="max-w-2xl mx-auto">
             <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6 mb-6">
               <h3 className="text-xl font-bold text-emerald-900 mb-2">
@@ -302,8 +343,8 @@ export function RiderDashboard() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="h-2/3">
+    <div className="min-h-screen flex flex-col">
+      <div className="h-64 md:h-96 relative">
         <Map
           drivers={driverMarkers}
           pickup={pickupLocation ? [pickupLocation.lat, pickupLocation.lng] : undefined}
@@ -313,8 +354,8 @@ export function RiderDashboard() {
         />
       </div>
 
-      <div className="flex-1 bg-white p-6 overflow-auto">
-        <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex-1 bg-white p-4 md:p-6 overflow-y-auto">
+        <div className="max-w-2xl mx-auto space-y-4 md:space-y-6">
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
             <p className="text-sm text-emerald-800">
               {isSelectingPickup

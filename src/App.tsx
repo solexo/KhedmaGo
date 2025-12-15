@@ -1,43 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Auth } from './components/Auth';
-import { RiderDashboard } from './components/RiderDashboard';
-import { DriverDashboard } from './components/DriverDashboard';
-import { DriverSetup } from './components/DriverSetup';
+import { ClientDashboard } from './components/ClientDashboard';
+import { ProfessionalDashboard } from './components/ProfessionalDashboard';
+import { ProfessionalSetup } from './components/ProfessionalSetup';
 import { useAuth } from './contexts/AuthContext';
 import { supabase } from './lib/supabase';
 import { LogOut } from 'lucide-react';
 
 function App() {
   const { user, profile, loading, signOut } = useAuth();
-  const [needsDriverSetup, setNeedsDriverSetup] = useState(false);
-  const [checkingDriverSetup, setCheckingDriverSetup] = useState(true);
+  const [needsProfessionalSetup, setNeedsProfessionalSetup] = useState(false);
+  const [checkingProfessionalSetup, setCheckingProfessionalSetup] = useState(true);
 
   useEffect(() => {
-    if (profile?.user_type === 'driver') {
-      checkDriverSetup();
+    if (profile?.user_type === 'professional') {
+      checkProfessionalSetup();
     } else {
-      setCheckingDriverSetup(false);
+      setCheckingProfessionalSetup(false);
     }
   }, [profile]);
 
-  async function checkDriverSetup() {
+  async function checkProfessionalSetup() {
     try {
       const { data, error } = await supabase
-        .from('drivers')
+        .from('professionals')
         .select('id')
         .eq('id', profile?.id)
         .maybeSingle();
 
       if (error) throw error;
-      setNeedsDriverSetup(!data);
+      setNeedsProfessionalSetup(!data);
     } catch (error) {
-      console.error('Error checking driver setup:', error);
+      console.error('Error checking professional setup:', error);
     } finally {
-      setCheckingDriverSetup(false);
+      setCheckingProfessionalSetup(false);
     }
   }
 
-  if (loading || checkingDriverSetup) {
+  if (loading || checkingProfessionalSetup) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -52,8 +52,8 @@ function App() {
     return <Auth />;
   }
 
-  if (profile.user_type === 'driver' && needsDriverSetup) {
-    return <DriverSetup onComplete={() => setNeedsDriverSetup(false)} />;
+  if (profile.user_type === 'professional' && needsProfessionalSetup) {
+    return <ProfessionalSetup onComplete={() => setNeedsProfessionalSetup(false)} />;
   }
 
   return (
@@ -61,12 +61,12 @@ function App() {
       <header className="bg-white border-b shadow-sm py-3 px-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <div className="bg-emerald-600 p-2 rounded-lg">
-            <span className="text-white text-xl font-bold">🚕</span>
+            <span className="text-white text-xl font-bold">🔧</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Morocco Ride</h1>
+            <h1 className="text-xl font-bold text-gray-900">KhedmaGo</h1>
             <p className="text-sm text-gray-600">
-              {profile.user_type === 'rider' ? 'Passager' : 'Chauffeur'} • {profile.full_name}
+              {profile.user_type === 'client' ? 'Client' : 'Professionnel'} • {profile.full_name}
             </p>
           </div>
         </div>
@@ -80,8 +80,8 @@ function App() {
         </button>
       </header>
 
-      <div className="flex-1 overflow-hidden">
-        {profile.user_type === 'rider' ? <RiderDashboard /> : <DriverDashboard />}
+      <div className="flex-1 overflow-auto">
+        {profile.user_type === 'client' ? <ClientDashboard /> : <ProfessionalDashboard />}
       </div>
     </div>
   );

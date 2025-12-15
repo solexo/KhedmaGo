@@ -250,8 +250,8 @@ export function DriverDashboard() {
 
   if (currentRide) {
     return (
-      <div className="h-screen flex flex-col">
-        <div className="h-2/3">
+      <div className="h-full flex flex-col">
+        <div className="h-64 md:h-96 relative">
           <Map
             pickup={[currentRide.pickup_lat, currentRide.pickup_lng]}
             dropoff={[currentRide.dropoff_lat, currentRide.dropoff_lng]}
@@ -265,7 +265,7 @@ export function DriverDashboard() {
           />
         </div>
 
-        <div className="flex-1 bg-white p-6 overflow-auto">
+        <div className="flex-1 bg-white p-4 md:p-6 overflow-y-auto">
           <div className="max-w-2xl mx-auto">
             <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
               <h3 className="text-xl font-bold text-blue-900 mb-2">
@@ -338,15 +338,15 @@ export function DriverDashboard() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="bg-white border-b shadow-sm p-4">
+    <div className="min-h-screen flex flex-col">
+      <div className="bg-white border-b shadow-sm p-3 md:p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-blue-100 p-3 rounded-xl">
-              <p className="text-2xl">🚗</p>
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="bg-blue-100 p-2 md:p-3 rounded-xl">
+              <p className="text-xl md:text-2xl">🚗</p>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900">
                 {driverInfo.vehicle_model} - {driverInfo.vehicle_plate}
               </h2>
               <p className="text-sm text-gray-600">
@@ -358,13 +358,13 @@ export function DriverDashboard() {
           <button
             onClick={toggleAvailability}
             disabled={loading}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
+            className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold transition-colors text-sm md:text-base ${
               isAvailable
                 ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                 : 'bg-gray-600 text-white hover:bg-gray-700'
             }`}
           >
-            <Power className="w-5 h-5" />
+            <Power className="w-4 md:w-5 h-4 md:h-5" />
             {isAvailable ? 'Se déconnecter' : 'Se connecter'}
           </button>
         </div>
@@ -391,13 +391,13 @@ export function DriverDashboard() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-auto bg-gray-50 p-6">
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">
               Trajets disponibles ({availableRides.length})
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {availableRides.map((ride) => {
                 const distance =
                   currentLocation
@@ -410,16 +410,16 @@ export function DriverDashboard() {
                 return (
                   <div
                     key={ride.id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+                      <div className="flex-1 mb-4 md:mb-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          <span className="px-2 md:px-3 py-1 bg-blue-100 text-blue-700 text-xs md:text-sm font-semibold rounded-full">
                             {ride.vehicle_type}
                           </span>
                           {currentLocation && (
-                            <span className="text-sm text-gray-600">
+                            <span className="text-xs md:text-sm text-gray-600">
                               à {distance.toFixed(1)} km
                             </span>
                           )}
@@ -427,18 +427,18 @@ export function DriverDashboard() {
 
                         <div className="space-y-2">
                           <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-emerald-600 mt-1" />
+                            <MapPin className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <p className="text-sm text-gray-700">{ride.pickup_address}</p>
                           </div>
                           <div className="flex items-start gap-2">
-                            <Navigation className="w-4 h-4 text-red-600 mt-1" />
+                            <Navigation className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
                             <p className="text-sm text-gray-700">{ride.dropoff_address}</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-right ml-4">
-                        <p className="text-3xl font-bold text-emerald-600">
+                      <div className="text-left md:text-right md:ml-4">
+                        <p className="text-2xl md:text-3xl font-bold text-emerald-600">
                           {ride.estimated_price} MAD
                         </p>
                         <p className="text-sm text-gray-600">{ride.estimated_duration} min</p>
@@ -448,7 +448,7 @@ export function DriverDashboard() {
                     <button
                       onClick={() => acceptRide(ride.id)}
                       disabled={loading}
-                      className="w-full py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 text-sm md:text-base"
                     >
                       Accepter le trajet
                     </button>
