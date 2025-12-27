@@ -40,6 +40,7 @@ export type Professional = {
   latitude: number;
   longitude: number;
   phone: string;
+  whatsapp?: string;
   is_available: boolean;
   created_at: string;
   updated_at: string;

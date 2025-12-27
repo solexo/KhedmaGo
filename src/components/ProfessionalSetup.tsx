@@ -136,6 +136,7 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
           profession_id: finalProfessionId,
           name: formData.name,
           phone: formData.phone,
+          whatsapp: formData.whatsapp || null,
           photo_url: photoUrl,
           description_fr: formData.description_fr,
           description_ar: formData.description_ar,
