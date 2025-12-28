@@ -61,17 +61,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string, fullName: string, phone: string, userType: 'client' | 'professional') {
-    console.log('Attempting signUp with email:', email);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    console.log('SignUp response:', { data, error });
-    if (error) {
-      console.error('SignUp error:', error);
-      throw error;
-    }
+    if (error) throw error;
 
     if (data.user) {
       const { error: profileError } = await supabase
