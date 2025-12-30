@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Profession, Professional } from '../lib/supabase';
-import { Phone, MessageCircle, MapPin, Search } from 'lucide-react';
+import { Phone, MapPin, Search } from 'lucide-react';
 
 export function ClientDashboard() {
   const [professions, setProfessions] = useState<Profession[]>([]);
@@ -42,7 +42,7 @@ export function ClientDashboard() {
         .from('professionals')
         .select('*, profession:professions(*)')
         .eq('profession_id', selectedProfession)
-        .eq('is_available', true);
+        .eq('status', 'available');
 
       if (error) throw error;
       setProfessionals(data || []);
@@ -125,22 +125,11 @@ export function ClientDashboard() {
               <div className="flex gap-2 mt-4">
                 <a
                   href={`tel:${professional.phone}`}
-                  className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-lg text-center font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-emerald-600 text-white py-2 px-4 rounded-lg text-center font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Phone className="w-4 h-4" />
                   Appeler
                 </a>
-                {professional.whatsapp && (
-                  <a
-                    href={`https://wa.me/${professional.whatsapp.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg text-center font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    WhatsApp
-                  </a>
-                )}
               </div>
             </div>
           ))}

@@ -28,7 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, !!session?.user);
       (async () => {
         setUser(session?.user ?? null);
         if (session?.user) {
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function loadProfile(userId: string) {
+    console.log('Loading profile for userId:', userId);
     try {
       const { data, error } = await supabase
         .from('users')
@@ -51,10 +53,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .maybeSingle();
 
+      console.log('Profile load result:', { data, error });
       if (error) throw error;
-      setProfile(data);
+
+      if (data) {
+        setProfile(data);
+      } else {
+        // Profile doesn't exist, create a default one based on userRole
+        console.log('Profile not found, creating default profile');
+        const userMetadata = await supabase.auth.getUser();
+        const email = userMetadata.data.user?.email || '';
+
+        // For now, default to professional since the user chose "worker"
+        const userType = 'professional';
+
+        const { data: newProfile, error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            full_name: email.split('@')[0], // Use email prefix as name
+            phone: '',
+            user_type: userType
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          setProfile(null);
+        } else {
+          console.log('Created new profile:', newProfile);
+          setProfile(newProfile);
+        }
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -83,12 +117,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signIn(email: string, password: string) {
+    console.log('AuthContext signIn called with:', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) throw error;
+    console.log('Supabase signIn result:', { data: !!data, error });
+    if (error) {
+      console.error('Supabase signIn error:', error);
+      throw error;
+    }
+    console.log('AuthContext signIn success');
   }
 
   async function signOut() {

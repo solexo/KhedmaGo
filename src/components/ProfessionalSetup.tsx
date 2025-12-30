@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Profession } from '../lib/supabase';
-import { MapPin, Upload, Phone, MessageCircle } from 'lucide-react';
+import { MapPin, Upload, Phone } from 'lucide-react';
 
 interface ProfessionalSetupProps {
   onComplete: () => void;
@@ -16,7 +16,6 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
     custom_profession: '',
     name: '',
     phone: '',
-    whatsapp: '',
     description_fr: '',
     description_ar: '',
     city: '',
@@ -136,7 +135,6 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
           profession_id: finalProfessionId,
           name: formData.name,
           phone: formData.phone,
-          whatsapp: formData.whatsapp || null,
           photo_url: photoUrl,
           description_fr: formData.description_fr,
           description_ar: formData.description_ar,
@@ -149,9 +147,10 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
       if (error) throw error;
 
       onComplete();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating professional profile:', error);
-      alert('Erreur lors de la création du profil professionnel');
+      const errorMessage = error?.message || 'Erreur inconnue';
+      alert(`Erreur lors de la création du profil professionnel: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -171,22 +170,27 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profession Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Profession *
+            <label className="block text-sm font-medium text-gray-700 mb-4">
+              Choisissez votre profession *
             </label>
-            <select
-              value={formData.profession_id}
-              onChange={(e) => setFormData(prev => ({ ...prev, profession_id: e.target.value, custom_profession: '' }))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              required
-            >
-              <option value="">Sélectionnez une profession</option>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
               {professions.map((profession) => (
-                <option key={profession.id} value={profession.id}>
-                  {profession.icon} {profession.name_fr}
-                </option>
+                <button
+                  key={profession.id}
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, profession_id: profession.id, custom_profession: '' }))}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    formData.profession_id === profession.id
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                      : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="text-2xl mb-2">{profession.icon}</div>
+                  <div className="text-sm font-medium">{profession.name_fr}</div>
+                  <div className="text-xs text-gray-500">{profession.name_ar}</div>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Custom Profession Input (when "Autre" is selected) */}
@@ -238,22 +242,6 @@ export function ProfessionalSetup({ onComplete }: ProfessionalSetupProps) {
             </div>
           </div>
 
-          {/* WhatsApp */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              WhatsApp (optionnel)
-            </label>
-            <div className="relative">
-              <MessageCircle className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-              <input
-                type="tel"
-                value={formData.whatsapp}
-                onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                placeholder="+212 6XX XXX XXX"
-              />
-            </div>
-          </div>
 
           {/* City */}
           <div>

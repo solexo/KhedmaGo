@@ -18,20 +18,28 @@ export function Auth() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    console.log('Auth submit:', { isLogin, email, password: '***' });
 
     try {
       if (isLogin) {
+        console.log('Calling signIn...');
         await signIn(email, password);
+        console.log('signIn completed');
       } else {
         if (!fullName || !phone) {
           throw new Error('Veuillez remplir tous les champs');
         }
+        console.log('Calling signUp...');
         await signUp(email, password, fullName, phone, userType);
+        console.log('signUp completed');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur s\'est produite');
+      console.error('Auth error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur s\'est produite';
+      setError(errorMessage);
     } finally {
       setLoading(false);
+      console.log('Auth submit finished, loading:', false);
     }
   }
 

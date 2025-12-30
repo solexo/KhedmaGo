@@ -198,7 +198,7 @@ INSERT INTO professions (name_fr, name_ar, icon) VALUES
   ('Enseignant', 'معلم', '👨‍🏫'),
   ('Coach sportif', 'مدرب رياضي', '🏃‍♂️'),
   ('Autre', 'أخرى', '❓')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name_fr) DO NOTHING;
 
 -- Create storage bucket for professional photos
 INSERT INTO storage.buckets (id, name, public)

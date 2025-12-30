@@ -30,19 +30,46 @@ export type Profession = {
 };
 
 export type Professional = {
-  id: string;
-  profession_id: string;
-  name: string;
-  photo_url?: string;
-  description_fr?: string;
-  description_ar?: string;
-  city: string;
-  latitude: number;
-  longitude: number;
-  phone: string;
-  whatsapp?: string;
-  is_available: boolean;
-  created_at: string;
-  updated_at: string;
-  profession?: Profession;
+   id: string;
+   profession_id: string;
+   name: string;
+   photo_url?: string;
+   description_fr?: string;
+   description_ar?: string;
+   city: string;
+   latitude: number;
+   longitude: number;
+   phone: string;
+   is_available: boolean;
+   created_at: string;
+   updated_at: string;
+   profession?: Profession;
+};
+
+export type JobRequest = {
+    id: string;
+    client_name: string;
+    client_phone: string;
+    profession_id: string;
+    latitude: number;
+    longitude: number;
+    status: 'pending' | 'negotiating' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
+    accepted_by?: string;
+    accepted_at?: string;
+    client_accepted_at?: string;
+    worker_accepted_at?: string;
+    completed_at?: string;
+    created_at: string;
+    updated_at: string;
+    profession?: Profession;
+    professional?: Professional;
+};
+
+export type Message = {
+    id: string;
+    job_request_id: string;
+    sender_type: 'client' | 'professional';
+    sender_name: string;
+    message: string;
+    created_at: string;
 };
